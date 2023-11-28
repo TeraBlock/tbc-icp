@@ -1,0 +1,21 @@
+{
+    "scripts": {
+        "dfx_install": "DFX_VERSION=0.15.1 sh -ci \"$(curl -fsSL https://sdk.dfinity.org/install.sh)\"",
+        "replica_start": "dfx start --background",
+        "replica_stop": "dfx stop",
+        "canister_deploy_local": "dfx deploy tbc_watcher",
+        "canister_deploy_mainnet": "dfx deploy --network ic tbc_watcher",
+        "canister_uninstall": "dfx canister uninstall-code tbc_watcher",
+        "canister_call_get_message": "dfx canister call tbc_watcher getMessage",
+        "canister_call_set_message": "dfx canister call tbc_watcher setMessage '(\"Hello world!\")'"
+    },
+    "dependencies": {
+        "@dfinity/agent": "^0.20.2",
+        "azle": "0.18.6"
+    },
+    "devDependencies": {
+        "@dfinity/agent": "^0.19.2",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.2.2"
+    }
+}

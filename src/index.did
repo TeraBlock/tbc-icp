@@ -1,0 +1,6 @@
+service: () -> {
+    getLockEvents: (nat32) -> (text) query;
+    getPublicKey: () -> (record {publicKey:vec nat8});
+    getSignatures: (nat32) -> (vec nat8) query;
+    processLockEvent: (text) -> (text);
+}
