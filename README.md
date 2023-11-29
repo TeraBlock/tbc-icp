@@ -1,24 +1,25 @@
-# ICP Signature and Event Storage
+# ICP Signature and Event Storage with Authentication
 
 ## Overview
 
-This project is an implementation of a decentralized application (dApp) on the Internet Computer (ICP) platform. It includes functionality to process and store event data, sign these events using Threshold ECDSA (T-ECDSA), and persistently store these signatures for later retrieval and verification.
+This project is a decentralized application (dApp) on the Internet Computer (ICP) platform. It includes functionality to process and store event data, sign events using Threshold ECDSA (T-ECDSA), and manage authentication of users based on their Principals.
 
 ## Key Components
 
 - **Watcher (`watcher.ts`)**: Monitors and processes lock events, triggering the signing process.
-- **Utilities (`utils.ts`)**: Contains the logic for signing messages using T-ECDSA.
-- **Signature Storage (`signatureStorage.ts`)**: Provides functionality to store and retrieve event data and their signatures using ICP's stable storage.
-- **Types (`types.ts`)**: Defines the data structures used across the project.
+- **Utilities (`utils.ts`)**: Contains logic for signing messages using T-ECDSA.
+- **Signature Storage (`signatureStorage.ts`)**: Provides functionality to persistently store and retrieve event data and their signatures.
+- **Authentication (`auth.ts`)**: Manages authorization of users and canisters based on their Principals.
+- **Types (`types.ts`)**: Defines data structures used across the project.
 
 ## Setup
 
 1. **Install Dependencies**:
-   Ensure you have the DFINITY Canister SDK (`dfx`) installed. You can get it from [DFINITY SDK](https://sdk.dfinity.org/docs/developers-guide/install-upgrade-remove.html).
+   Ensure the DFINITY Canister SDK (`dfx`) is installed. [DFINITY SDK](https://sdk.dfinity.org/docs/developers-guide/install-upgrade-remove.html).
 
 2. **Clone the Repository**:
    ```bash
-   git clone https://github.com/TeraBlock/tbc-icp.git
+   git clone https://github.com/TeraBlock/tbc-icp
    cd tbc-icp
    ```
 
@@ -35,17 +36,25 @@ This project is an implementation of a decentralized application (dApp) on the I
 ## Usage
 
 - **Process Lock Event**:
-  Call the `processLockEvent` function to process and store a new lock event. This function will automatically handle the signing and storage of the event's signature.
+  Call `processLockEvent` to process and store a new lock event. This function automatically handles the signing and storage of the event's signature.
 
 - **Retrieve Event Signature**:
-  Use the `getEventSignature` function to retrieve the signature for a specific event by its ID.
+  Use `getEventSignature` to retrieve the signature for a specific event by its ID.
 
-- **Additional Operations**:
-  The canister includes additional functionality for querying and resetting the stored data. Refer to the respective function documentation for details.
+- **Authorization**:
+  The `auth.ts` module manages which users are authorized to invoke certain functions. A hardcoded principal is set initially, and additional principals can be dynamically added or removed.
+
+## Authentication Management
+
+- **Adding Authorized Principals**:
+  Use the functions in `auth.ts` to manage which principals are authorized to call protected functions in the canister.
+
+- **Verifying Principals**:
+  The `processLockEvent` function checks the caller's principal to ensure they are authorized.
 
 ## Testing
 
-Run the provided test suite to ensure that all components are functioning correctly:
+Run the provided test suite:
 
 ```bash
 dfx test
@@ -53,4 +62,4 @@ dfx test
 
 ## Contributing
 
-This project is currently worked by TeraBlock. Contributions to this project are welcome. Please follow the standard GitHub pull request workflow.
+Contributions are welcome. Please follow the standard GitHub pull request workflow.

@@ -1,11 +1,18 @@
-import { update, query, int, Record, text, blob, AzleText, nat64, nat32 } from 'azle';
+import { update, query, int, Record, text, blob, AzleText, nat64, nat32, ic, Principal } from 'azle';
 import { signMessage } from './utils';
+import { isAuthorized, listAuthorizedPrincipals } from './auth';
+import { caller } from 'azle/src/lib/ic/caller';
+import { call } from 'azle/src/lib/ic/call';
 
 let lockEvents : text [] = [];
 let Signature : blob [] = [];
 
 // Function to process and store lock events
 export const processLockEvent = update([text], text , async(event : text) => {
+    const callerPrincipal = caller();
+    if (!isAuthorized(callerPrincipal)) {
+        ic.trap("Unauthorized access");
+    }
     // Generate a nonce
     const nonce = generateNonce();
     // Sign the event and store the signature
@@ -49,4 +56,13 @@ export const getLockEvents = query([nat32],text, async (index : nat32) => {
 // Function to retrieve stored lock events
 export const getSignatures = query([nat32], blob, async (index : nat32) => {
     return Signature[index];
+});
+// Function to retrieve stored callers
+export const getAuthorisedCallers = query([nat32], Principal , async (index : nat32) => {
+    return listAuthorizedPrincipals()[index];
+});
+
+// Function to retrieve stored lock events
+export const myPrincipal = query([], Principal, async () => {
+    return caller();
 });
