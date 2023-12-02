@@ -62,3 +62,9 @@ export const signMessage = async (event: text) => {
     };
 };
 
+
+// Function to generate a nonce
+export function generateNonce(): number {
+    return Date.now();
+}
+
