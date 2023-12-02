@@ -1,4 +1,4 @@
-import { update, query, text, blob, nat32, ic, Principal, nat, Canister, None, Null, Void } from 'azle';
+import { update, query, text, blob, nat32, ic, Principal, nat, Canister, Void } from 'azle';
 import { generateNonce, signMessage } from './utils';
 import { isAuthorized, listAuthorizedPrincipals } from './auth';
 import { caller } from 'azle/src/lib/ic/caller';
@@ -22,8 +22,7 @@ async function signAndStoreForAdmin(event: text, nonce: number): Promise<void> {
     // Sign the message after adding nonce to it
     const message = event + '-' + nonce.toString();
     const messageHash = sha256(message);
-    if(messageHash == null)
-    {
+    if (messageHash == null) {
         return;
     }
     const messageHashBytes = new Uint8Array(messageHash?.match(/.{1,2}/g).map(byte => parseInt(byte, 32)));
@@ -49,7 +48,7 @@ async function checkForLockEvents(): Promise<void> {
 }
 
 // Function to process and store lock events
-async function processLockEvent(event : text){
+async function processLockEvent(event: text) {
     const callerPrincipal = caller();
     if (!isAuthorized(callerPrincipal)) {
         ic.trap("Unauthorized access");
@@ -63,39 +62,36 @@ async function processLockEvent(event : text){
     return event;
 };
 
+export const startTimer = update([], nat, () => {
+    if (timerHandle !== null) {
+        ic.trap('Timer is already running');
+    }
 
-export default Canister({
-    startTimer: update([], nat, () => {
-        if (timerHandle !== null) {
-            ic.trap('Timer is already running');
-        }
+    timerHandle = ic.setTimer(5_000_000_000n, () => {
+        checkForLockEvents();
+    }); // 5 seconds in nanoseconds
 
-        timerHandle = ic.setTimer(5_000_000_000n ,() => {
-            checkForLockEvents();
-        }); // 5 seconds in nanoseconds
-
-        return timerHandle;
-    }),
-    stopTimer: update([], Void, () => {
-        if (timerHandle === null) {
-            ic.trap('Timer is not running');
-        }
-        ic.clearTimer(timerHandle || 0n);
-        timerHandle = null;
-    }),
-    getLockEvents: query([nat32], text, async (index: nat32) => {
-        return lockEvents[index];
-    }),
-    // Function to retrieve stored lock events
-    getSignatures: query([nat32], blob, async (index: nat32) => {
-        return Signature[index];
-    }),
-    // Function to retrieve stored callers
-    getAuthorisedCallers: query([nat32], Principal, async (index: nat32) => {
-        return listAuthorizedPrincipals()[index];
-    }),
-    // Function to retrieve stored lock events
-    myPrincipal: query([], Principal, async () => {
-        return caller();
-    })
+    return timerHandle;
+});
+export const stopTimer = update([], Void, () => {
+    if (timerHandle === null) {
+        ic.trap('Timer is not running');
+    }
+    ic.clearTimer(timerHandle || 0n);
+    timerHandle = null;
+});
+export const getLockEvents = query([nat32], text, async (index: nat32) => {
+    return lockEvents[index];
+});
+// Function to retrieve stored lock events
+export const getSignatures = query([nat32], blob, async (index: nat32) => {
+    return Signature[index];
+});
+// Function to retrieve stored callers
+export const getAuthorisedCallers = query([nat32], Principal, async (index: nat32) => {
+    return listAuthorizedPrincipals()[index];
+});
+// Function to retrieve stored lock events
+export const myPrincipal = query([], Principal, async () => {
+    return caller();
 });
