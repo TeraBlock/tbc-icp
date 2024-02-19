@@ -14,12 +14,12 @@ import {
 import { signMessage } from "./utils";
 import { isAuthorized, listAuthorizedPrincipals } from "./auth";
 import { caller } from "azle/src/lib/ic/caller";
-import {
-  getLatestBlockNumber,
-  getLockEvents as getLogs,
-} from "./helpers/ether";
+// import {
+//   getLatestBlockNumber,
+// //   getLockEvents as getLogs,
+// } from "./helpers/ether";
 
-let lockEvents: text[] = [];
+export let lockEvents: text[] = [];
 let Signature: blob[] = [];
 
 // save synced Block number
@@ -35,20 +35,20 @@ export const processLockEvent = update([text], text, async (event: text) => {
   const nonce = generateNonce();
 
   // code to scan Lock Events with ethersjs and store in MongoDB
-  const toBlockNumber = await getLatestBlockNumber();
-  const lockEvents = await getLogs(syncedBlockNumber, toBlockNumber);
+//   const toBlockNumber = await getLatestBlockNumber();
+//   const lockEvents = await getLogs(syncedBlockNumber, toBlockNumber);
   // send lock events to a URL
   //  await call(); // use this if canister
-  await fetch("http://localhost:3000/lockEvents", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(lockEvents),
-  });
+//   await fetch("http://localhost:3000/lockEvents", {
+//     method: "POST",
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//     body: JSON.stringify(lockEvents),
+//   });
 
   // update syncedBlockNumber
-  syncedBlockNumber = toBlockNumber;
+//   syncedBlockNumber = toBlockNumber;
   // Sign the event and store the signature
   await signAndStoreForAdmin(event, nonce);
   // Return the event
@@ -84,6 +84,10 @@ function generateNonce(): number {
 // Function to retrieve stored lock events
 export const getLockEvents = query([nat32], text, async (index: nat32) => {
   return lockEvents[index];
+});
+
+export const getAllLockEvents = query([], text, async () => {
+  return lockEvents.toString();
 });
 
 // Function to retrieve stored lock events
