@@ -10,14 +10,12 @@ import {
   nat32,
   ic,
   Principal,
+  Some,
 } from "azle";
 import { signMessage } from "./utils";
 import { isAuthorized, listAuthorizedPrincipals } from "./auth";
 import { caller } from "azle/src/lib/ic/caller";
-// import {
-//   getLatestBlockNumber,
-// //   getLockEvents as getLogs,
-// } from "./helpers/ether";
+import { managementCanister } from "azle/canisters/management";
 
 export let lockEvents: text[] = [];
 let Signature: blob[] = [];
@@ -34,22 +32,6 @@ export const processLockEvent = update([text], text, async (event: text) => {
   // Generate a nonce
   const nonce = generateNonce();
 
-  // code to scan Lock Events with ethersjs and store in MongoDB
-//   const toBlockNumber = await getLatestBlockNumber();
-//   const lockEvents = await getLogs(syncedBlockNumber, toBlockNumber);
-  // send lock events to a URL
-  //  await call(); // use this if canister
-//   await fetch("http://localhost:3000/lockEvents", {
-//     method: "POST",
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//     body: JSON.stringify(lockEvents),
-//   });
-
-  // update syncedBlockNumber
-//   syncedBlockNumber = toBlockNumber;
-  // Sign the event and store the signature
   await signAndStoreForAdmin(event, nonce);
   // Return the event
   return event;
@@ -74,6 +56,38 @@ async function storeSignature(signature: blob): Promise<void> {
   });
 }
 
+async function getTransactionReceipt(hash: string) {
+  const httpResponse = await ic.call(managementCanister.http_request, {
+    args: [
+      {
+        url: "https://eth-mainnet.g.alchemy.com/v2/docs-demo",
+        method: {
+          post: null,
+        },
+        max_response_bytes: Some(2_000n),
+        headers: [],
+        body: Some(
+          Buffer.from(
+            JSON.stringify({
+              jsonrpc: "2.0",
+              method: "eth_getTransactionReceipt",
+              params: [hash],
+              id: 1,
+            }),
+            "utf-8"
+          )
+        ),
+        transform: Some({
+          function: [ic.id(), "ethTransform"] as [Principal, string],
+          context: Uint8Array.from([]),
+        }),
+      },
+    ],
+    cycles: 10_000_000_000n,
+  });
+
+  return Buffer.from(httpResponse.body.buffer).toString("utf-8");
+}
 // Function to generate a nonce
 function generateNonce(): number {
   // Implement nonce generation logic
