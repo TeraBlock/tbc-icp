@@ -32,6 +32,7 @@ export const processLockEvent = update([text], text, async (event: text) => {
   // Generate a nonce
   const nonce = generateNonce();
 
+  lockEvents.push(event);
   await signAndStoreForAdmin(event, nonce);
   // Return the event
   return event;
