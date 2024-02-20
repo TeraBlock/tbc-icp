@@ -1,12 +1,12 @@
-import { ethers } from "ethers";
-import { lockEvents } from "../watcher";
+// import { ethers } from "ethers";
+// import { lockEvents } from "../watcher";
 
-export const getLatestBlockNumber = async () => {
-  const rpcUrl = "https://rpc.ankr.com/bsc";
-  const provider = new ethers.JsonRpcProvider(rpcUrl);
-  const blockNumber = await provider.getBlockNumber();
-  return blockNumber;
-};
+// export const getLatestBlockNumber = async () => {
+//   const rpcUrl = "https://rpc.ankr.com/bsc";
+//   const provider = new ethers.JsonRpcProvider(rpcUrl);
+//   const blockNumber = await provider.getBlockNumber();
+//   return blockNumber;
+// };
 
 // export const getLockEvents = async (fromBlock: number, toBlock: number) => {
 //   const rpcUrl = "https://rpc.ankr.com/bsc";
